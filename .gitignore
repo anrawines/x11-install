@@ -1,0 +1,41 @@
+# Local user configurations (should be customized per user)
+dotfiles/config/**/*.bak
+dotfiles/*.bak.*
+
+# System generated files
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Temporary files
+*.tmp
+*.log
+
+# Package caches
+.cache/
+cache/
+
+# IDE and editor
+.vim/
+*.sublime-project
+*.sublime-workspace
+
+# Backup files from installation
+**/*.bak
+**/*.bak.*
+
+# Node modules (if any development dependencies)
+node_modules/
+
+# Python virtual environments
+venv/
+env/
+__pycache__/
+
+# Compiled binaries
+*.o
+*.out
+*.so

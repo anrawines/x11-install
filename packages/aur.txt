@@ -1,0 +1,10 @@
+# Optional AUR packages
+# These are popular complementary packages for bspwm
+# Uncomment as needed or add your own
+
+# polybar-git
+# rofi-themes-git
+# bspwm-git
+# sxhkd-git
+# picom-git
+# alacritty-git

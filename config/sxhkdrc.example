@@ -1,0 +1,166 @@
+# ============================================
+# sxhkd Configuration - Hotkey Daemon
+# ============================================
+
+# Terminal
+super + Return
+	alacritty
+
+# Application menu
+super + @space
+	dmenu_run -i -p "Run:"
+
+# ============================================
+# bspwm Window Management
+# ============================================
+
+# Quit bspwm
+super + alt + q
+	bspc quit
+
+# Close focused node
+super + w
+	bspc node -c
+
+# Kill focused node
+super + shift + w
+	bspc node -k
+
+# Alternate between the tiled and monocle layout
+super + m
+	bspc desktop -l next
+
+# Send the newest marked node to the newest preselected node
+super + y
+	bspc node newest.marked.local -n newest.!automatic.local
+
+# Swap the focused node and the biggest window on the desktop
+super + g
+	bspc node -s biggest.window.local
+
+# ============================================
+# Focus and Swap (hjkl navigation)
+# ============================================
+
+# Focus left/down/up/right
+super + {h,j,k,l}
+	bspc node -f {west,south,north,east}
+
+# Focus older/newer window in history
+super + {o,i}
+	bspc wm -h off; \
+	bspc node {older,newer} -f; \
+	bspc wm -h on
+
+# Swap with left/down/up/right
+super + shift + {h,j,k,l}
+	bspc node -s {west,south,north,east}
+
+# Swap with parent
+super + shift + p
+	bspc node -s parent
+
+# ============================================
+# Desktop Management
+# ============================================
+
+# Focus desktop 1-5
+super + {1-5}
+	bspc desktop -f '^{1-5}'
+
+# Send node to desktop 1-5
+super + shift + {1-5}
+	bspc node -d '^{1-5}'
+
+# Cycle through desktops
+super + c
+	bspc desktop -f next.local
+
+super + x
+	bspc desktop -f prev.local
+
+# ============================================
+# Node State/Layout
+# ============================================
+
+# Toggle tiled/floating
+super + t
+	bspc node -t ~tiled
+
+# Toggle floating
+super + shift + space
+	bspc node -t ~floating
+
+# Toggle fullscreen
+super + f
+	bspc node -t ~fullscreen
+
+# Set layout
+super + shift + {t,s,m}
+	bspc node -l {tiled,spiral,monocle}
+
+# ============================================
+# Node Resize
+# ============================================
+
+# Expand node or contract parent
+super + alt + {h,j,k,l}
+	bspc node -z {left -20 0,bottom 0 20,top 0 -20,right 20 0}
+
+# Contract node or expand parent
+super + alt + shift + {h,j,k,l}
+	bspc node -z {right -20 0,top 0 20,bottom 0 -20,left 20 0}
+
+# ============================================
+# Preselection (choose where new windows go)
+# ============================================
+
+# Preselect direction
+super + ctrl + {h,j,k,l}
+	bspc node -p {west,south,north,east}
+
+# Preselect ratio
+super + ctrl + {1-9}
+	bspc node -o 0.{1-9}
+
+# Cancel preselection
+super + ctrl + space
+	bspc node -p cancel
+
+# Cancel preselection for focused desktop
+super + ctrl + shift + space
+	bspc query -N -d | xargs -I id bspc node id -p cancel
+
+# ============================================
+# Volume and Brightness (adjust as needed)
+# ============================================
+
+# Volume (requires pulseaudio or pipewire)
+XF86AudioRaiseVolume
+	pactl set-sink-volume @DEFAULT_SINK@ +5%
+
+XF86AudioLowerVolume
+	pactl set-sink-volume @DEFAULT_SINK@ -5%
+
+XF86AudioMute
+	pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+# Brightness (requires light or brightnessctl)
+XF86MonBrightnessUp
+	brightnessctl set +5%
+
+XF86MonBrightnessDown
+	brightnessctl set 5%-
+
+# ============================================
+# Application Shortcuts
+# ============================================
+
+super + e
+	thunar
+
+super + b
+	firefox
+
+super + shift + l
+	i3lock -c 1c1c1c

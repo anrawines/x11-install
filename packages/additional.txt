@@ -1,0 +1,32 @@
+# Development
+base-devel
+git
+rustup
+nodejs
+npm
+python
+
+# Media and productivity
+feh
+firefox
+thunar
+gedit
+mpv
+
+# System utilities and tools
+htop
+neofetch
+lsof
+strace
+unzip
+fzf
+ripgrep
+bat
+
+# Optional: Additional window managers/tools
+rofi
+i3lock
+xdotool
+
+# Optional: Themes and styling
+lxappearance-gtk3
