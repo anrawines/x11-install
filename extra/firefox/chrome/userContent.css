@@ -1,0 +1,145 @@
+/* changes the background color of these mentioned pages to black */
+
+@-moz-document url(chrome://browser/content/blanktab.html), url(about:newtab), url(about:home), url(about:privatebrowsing), url(about:profiles){
+body {
+    background-color: black !important;
+}
+}
+
+/* preferences page black background */
+@-moz-document url(about:preferences){
+body {
+    background-color: black !important;
+
+    .sticky-container {
+        background-color: black !important;
+    }
+}
+}
+
+/* 
+* Addons page compact redisign with a black background 
+* code taken from https://www.reddit.com/r/FirefoxCSS/comments/a8z6wk/make_aboutaddons_page_look_nice_and_compact/  
+*/
+
+@-moz-document url(about:addons), url(about:preferences){
+body {
+    background-color: rgb(0, 0, 0) !important;
+
+    .sticky-container {
+        background-color: black !important;
+    }
+
+    .main-search {
+        background-color: black !important;
+    }
+
+    .main-heading {
+        background-color: black !important;
+    }
+}
+
+.addon.card {
+
+    max-width: 950px !important;
+    padding: 4px !important;
+    padding-right: 6px !important;
+    padding-left: 11px !important;
+    margin: -1px !important;
+    margin-top: 4px !important;
+    font-size: 11px !important;
+    font-family: Arial !important;
+    border-radius: 1px !important;
+    background-color: rgba(39, 37, 37, 0.967) !important;
+
+}
+
+#header-inner {
+
+    margin-left: -133px !important;
+    margin-bottom: -27px !important;
+
+}
+
+.heading-inner {
+    width: 1795px !important;
+    margin-left: -1185px !important;
+    margin-top: -28px !important;
+
+}
+
+.toolbarbutton-icon {
+    padding: 0px 2px !important;
+    margin-left: -222px !important;
+    margin-right: 0px !important;
+    margin-top: -2px !important;
+    padding-top: 2px !important;
+}
+
+}
+
+/*pinned icon background */
+@-moz-document url-prefix("about:home"), url-prefix("about:newtab") {
+    .top-site-outer .tile {
+        background-color: rgba(0, 0, 0, 0) !important;
+        box-shadow: 0 0 0 rgba(0, 0, 0, 0) !important;
+    }
+}
+
+/* Removes white loading page */
+@-moz-document url(about:blank), url(about:newtab), url(about:home){
+
+html:not(#ublock0-epicker),
+html:not(#ublock0-epicker) body,
+#newtab-customize-overlay {
+    background: #1d2021 !important;
+}
+}
+
+/* Hide scrollbar */
+:root {
+    scrollbar-width: none !important;
+}
+}
+
+@-moz-document url(about:privatebrowsing){
+
+:root {
+    scrollbar-width: none !important;
+}
+}
+
+
+/*
+ * Global - applies to ALL websites
+ * Note: Remove @-moz-document entirely for true global rules
+ */
+
+video {
+    filter: saturate(100%) brightness(105%) contrast(100%) !important;
+}
+
+img {
+    filter: saturate(105%) brightness(75%) contrast(105%) !important;
+}
+
+
+/* 
+ * YouTube - overrides the global rules only on youtube.com
+ */
+
+@-moz-document domain("youtube.com") {
+
+    /* These override the global rules because they're more specific */
+    video {
+        filter: saturate(100%) brightness(95%) contrast(105%) !important;
+    }
+
+    img {
+        filter: saturate(50%) brightness(75%) contrast(100%) !important;
+    }
+
+    img:hover {
+        filter: saturate(85%) brightness(100%) contrast(100%) !important;
+    }
+}

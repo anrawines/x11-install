@@ -1,0 +1,661 @@
+#!/bin/bash
+
+# Game Installation Script for Arch Linux-based Distros
+# Supports: Arch Linux, EndeavourOS, Manjaro, ArcoLinux, Garuda Linux, etc.
+
+set -e
+
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then
+    echo -e "${RED}Please do not run this script as root${NC}"
+    exit 1
+fi
+
+# Function to print colored messages
+print_msg() {
+    local color=$1
+    local msg=$2
+    echo -e "${color}${msg}${NC}"
+}
+
+# Function to check if command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check if multilib is enabled
+check_multilib() {
+    if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+        print_msg "$YELLOW" "Multilib repository is not enabled!"
+        print_msg "$CYAN" "Enabling multilib repository..."
+        
+        # Backup pacman.conf
+        sudo cp /etc/pacman.conf /etc/pacman.conf.backup
+        
+        # Add multilib repository
+        echo "" | sudo tee -a /etc/pacman.conf >/dev/null
+        echo "[multilib]" | sudo tee -a /etc/pacman.conf >/dev/null
+        echo "Include = /etc/pacman.d/mirrorlist" | sudo tee -a /etc/pacman.conf >/dev/null
+        
+        print_msg "$GREEN" "Multilib repository enabled!"
+        print_msg "$CYAN" "Updating package databases..."
+        sudo pacman -Sy --noconfirm
+    else
+        print_msg "$GREEN" "Multilib repository is already enabled."
+    fi
+}
+
+# Detect AUR helper
+AUR_HELPER=""
+if command_exists yay; then
+    AUR_HELPER="yay"
+    print_msg "$GREEN" "Detected AUR helper: yay"
+elif command_exists paru; then
+    AUR_HELPER="paru"
+    print_msg "$GREEN" "Detected AUR helper: paru"
+else
+    print_msg "$YELLOW" "No AUR helper found (yay/paru). AUR packages will be skipped."
+fi
+
+# Function to check if package is installed
+is_installed() {
+    local pkg=$1
+    pacman -Qi "$pkg" >/dev/null 2>&1
+}
+
+# Function to check if package needs update
+needs_update() {
+    local pkg=$1
+    if [ -n "$AUR_HELPER" ]; then
+        $AUR_HELPER -Qu "$pkg" 2>/dev/null | grep -q "$pkg"
+    else
+        pacman -Qu "$pkg" 2>/dev/null | grep -q "$pkg"
+    fi
+}
+
+# Function to install package with AUR helper or pacman
+install_pkg() {
+    local pkg=$1
+    local aur=$2  # Set to "true" for AUR packages
+    
+    if is_installed "$pkg"; then
+        if needs_update "$pkg"; then
+            print_msg "$CYAN" "$pkg is installed but needs update..."
+        else
+            print_msg "$GREEN" "$pkg is already installed and up to date. Skipping."
+            return 0
+        fi
+    fi
+    
+    print_msg "$BLUE" "Installing $pkg..."
+    
+    if [ "$aur" = "true" ]; then
+        if [ -n "$AUR_HELPER" ]; then
+            $AUR_HELPER -S --noconfirm "$pkg"
+        else
+            print_msg "$RED" "AUR helper not found. Cannot install $pkg from AUR."
+            return 1
+        fi
+    else
+        if [ -n "$AUR_HELPER" ]; then
+            $AUR_HELPER -S --noconfirm "$pkg"
+        else
+            sudo pacman -S --noconfirm "$pkg" 2>/dev/null || {
+                print_msg "$YELLOW" "$pkg not found in official repos"
+                return 1
+            }
+        fi
+    fi
+    
+    if is_installed "$pkg"; then
+        print_msg "$GREEN" "$pkg installed/updated successfully!"
+    else
+        print_msg "$RED" "Failed to install $pkg"
+        return 1
+    fi
+}
+
+# Install CachyOS Repo
+install_cachyos_repo() {
+    print_msg "$GREEN" "Installing CachyOS Repository..."
+    print_msg "$CYAN" "What is CachyOS Repo?"
+    print_msg "$YELLOW" "  Performance-optimized kernels (cachyos, cachyos-lts, cachyos-bore)"
+    print_msg "$YELLOW" "  Optimized Mesa drivers for better gaming performance"
+    print_msg "$YELLOW" "  BORE scheduler - Better Responsiveness Optimizer"
+    print_msg "$YELLOW" "  CPU optimizations for gaming and productivity"
+    echo ""
+    
+    if grep -q "^\[cachyos\]" /etc/pacman.conf; then
+        print_msg "$GREEN" "CachyOS repo is already enabled!"
+        return 0
+    fi
+    
+    print_msg "$BLUE" "Downloading and installing CachyOS repo..."
+    
+    cd /tmp
+    curl -fsSL https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
+    
+    if [ ! -f "cachyos-repo.tar.xz" ]; then
+        print_msg "$RED" "Failed to download CachyOS repo!"
+        cd -
+        return 1
+    fi
+    
+    tar xf cachyos-repo.tar.xz && cd cachyos-repo
+    
+    if [ -f "./cachyos-repo.sh" ]; then
+        sudo ./cachyos-repo.sh
+        print_msg "$GREEN" "CachyOS repository installed successfully!"
+    else
+        print_msg "$RED" "CachyOS repo installation script not found!"
+        cd -
+        return 1
+    fi
+    
+    cd -
+    rm -rf /tmp/cachyos-repo /tmp/cachyos-repo.tar.xz
+    
+    print_msg "$CYAN" "Don't forget to install a CachyOS kernel if you want better performance:"
+    print_msg "$YELLOW}  sudo pacman -S linux-cachyos    (recommended kernel)"
+    print_msg "$YELLOW}  sudo pacman -S linux-cachyos-bore (BORE scheduler)"
+}
+
+# Install Chaotic-AUR Repo
+install_chaotic_aur() {
+    print_msg "$GREEN" "Installing Chaotic-AUR Repository..."
+    print_msg "$CYAN" "What is Chaotic-AUR?"
+    print_msg "$YELLOW}  Prebuilt AUR packages - no compilation needed!"
+    print_msg "$YELLOW}  Saves hours of compilation time for AUR packages"
+    print_msg "$YELLOW}  Great for gaming: Discord, Heroic, MangoHud, etc."
+    print_msg "$YELLOW}  1000+ popular AUR packages available prebuilt"
+    echo ""
+    
+    if grep -q "^\[chaotic-aur\]" /etc/pacman.conf; then
+        print_msg "$GREEN" "Chaotic-AUR repo is already enabled!"
+        return 0
+    fi
+    
+    print_msg "$BLUE" "Installing Chaotic-AUR keyring and mirrorlist..."
+    
+    # Install keyring and mirrorlist
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst'
+    sudo pacman -U --noconfirm 'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+    
+    # Add to pacman.conf
+    print_msg "$BLUE" "Adding Chaotic-AUR to pacman.conf..."
+    
+    # Backup pacman.conf
+    sudo cp /etc/pacman.conf /etc/pacman.conf.backup
+    
+    # Add Chaotic-AUR repo after core repo
+    sudo sed -i '/^\[core\]/a \
+\
+[chaotic-aur]\
+Include = /etc/pacman.d/chaotic-mirrorlist' /etc/pacman.conf
+    
+    # Update package databases
+    print_msg "$CYAN" "Updating package databases..."
+    sudo pacman -Sy --noconfirm
+    
+    print_msg "$GREEN" "Chaotic-AUR repository installed successfully!"
+    print_msg "$YELLOW} You can now install AUR packages without compiling!"
+}
+
+# Main menu
+show_menu() {
+    clear
+    print_msg "$GREEN" "=========================================="
+    print_msg "$GREEN" "Game Installation Script for Arch Linux"
+    print_msg "$GREEN" "=========================================="
+    print_msg "$CYAN" "AUR Helper: ${AUR_HELPER:-None}"
+    echo ""
+    
+    print_msg "${BOLD}${CYAN}" "=== PERFORMANCE REPOSITORIES ==="
+    echo -e "  1. Add CachyOS Repository"
+    echo -e "     Performance-optimized kernels and Mesa drivers"
+    echo -e "     ${YELLOW}Better FPS, smoother gaming, optimized schedulers"
+    echo -e ""
+    echo -e "  2. Add Chaotic-AUR Repository"
+    echo -e "     Prebuilt AUR packages - no compilation time!"
+    echo -e "     ${YELLOW}Saves hours when installing Discord, Heroic, etc."
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== GAME LAUNCHERS ==="
+    echo -e "  3. Steam"
+    echo -e "     The most popular gaming platform with thousands of games"
+    echo -e ""
+    echo -e "  4. Lutris"
+    echo -e "     Open gaming platform that supports Steam, GOG, Humble, and more"
+    echo -e ""
+    echo -e "  5. Heroic Games Launcher"
+    echo -e "     Open-source launcher for Epic Games Store and GOG"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== WINDOWS COMPATIBILITY ==="
+    echo -e "  6. Wine & Proton"
+    echo -e "     ${YELLOW}Wine:${NC} Run Windows apps on Linux"
+    echo -e "     ${YELLOW}Proton:${NC} Enhanced Wine for Steam games (better performance)"
+    echo -e "     ${YELLOW}Why you need this:${NC} Play Windows games on Linux!"
+    echo -e ""
+    echo -e "  7. DXVK & VKD3D"
+    echo -e "     ${YELLOW}DXVK:${NC} Translates DirectX (Windows graphics) to Vulkan (Linux)"
+    echo -e "     ${YELLOW}VKD3D:${NC} Translates DirectX 12 to Vulkan"
+    echo -e "     ${YELLOW}Why you need this:${NC} Makes Windows games run faster on Linux"
+    echo -e ""
+    echo -e "  8. ProtonUp-Qt"
+    echo -e "     GUI tool to install/update Proton-GE (community Proton build)"
+    echo -e "     ${YELLOW}Why you need this:${NC} Proton-GE often has better game compatibility"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== PERFORMANCE & MONITORING ==="
+    echo -e "  9. MangoHud"
+    echo -e "     On-screen FPS counter and performance monitor overlay"
+    echo -e "     Shows: FPS, temps, RAM usage, GPU usage while gaming"
+    echo -e ""
+    echo -e " 10. GameMode"
+    echo -e "     Optimizes system performance when gaming"
+    echo -e "     Disables CPU throttling and background tasks for smoother gameplay"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== ESSENTIAL DEPENDENCIES ==="
+    echo -e " 11. Gaming Dependencies"
+    echo -e "     Required 32-bit libraries for Steam, Wine, and games"
+    echo -e "     ${YELLOW}NOTE:${NC} This is mandatory for almost all games!"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== COMMUNICATION & STREAMING ==="
+    echo -e " 12. Discord"
+    echo -e "     Voice & text chat for gaming with friends"
+    echo -e ""
+    echo -e " 13. OBS Studio"
+    echo -e "     Record and stream your gameplay"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== EMULATION ==="
+    echo -e " 14. RetroArch"
+    echo -e "     All-in-one emulator for classic gaming consoles"
+    echo -e "     Supports: NES, SNES, PlayStation, Nintendo 64, and more"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== BULK INSTALL ==="
+    echo -e " 15. Install Everything"
+    echo -e "     Install all gaming software (recommended for gamers)"
+    echo -e ""
+    
+    print_msg "${BOLD}${CYAN}" "=== SYSTEM INFO ==="
+    echo -e " 16. Check System Status"
+    echo -e "     See what's installed and what needs updates"
+    echo -e ""
+    echo -e " 17. Exit"
+    echo -e ""
+}
+
+# Install Steam
+install_steam() {
+    print_msg "$GREEN" "Installing Steam..."
+    check_multilib
+    install_pkg "steam"
+    install_pkg "steam-native-runtime"
+}
+
+# Install Lutris
+install_lutris() {
+    print_msg "$GREEN" "Installing Lutris..."
+    install_pkg "lutris" "true"
+}
+
+# Install Heroic Games Launcher
+install_heroic() {
+    print_msg "$GREEN" "Installing Heroic Games Launcher..."
+    install_pkg "heroic-games-launcher-bin" "true"
+}
+
+# Install Wine & Proton
+install_wine_proton() {
+    print_msg "$GREEN" "Installing Wine & Proton..."
+    print_msg "$CYAN" "What are these?"
+    print_msg "$YELLOW" "  Wine: Makes Windows programs run on Linux"
+    print_msg "$YELLOW" "  Proton: Valve's improved Wine for Steam games"
+    print_msg "$YELLOW" "  This lets you play Windows-only games on Linux!"
+    echo ""
+    check_multilib
+    install_pkg "wine"
+    install_pkg "wine-staging"
+    install_pkg "winetricks"
+    install_pkg "proton-ge-custom" "true"
+}
+
+# Install DXVK & VKD3D
+install_dxvk_vkd3d() {
+    print_msg "$GREEN" "Installing DXVK & VKD3D..."
+    print_msg "$CYAN" "What are these?"
+    print_msg "$YELLOW" "  DXVK: Converts Windows DirectX graphics to Linux Vulkan"
+    print_msg "$YELLOW" "  VKD3D: Converts DirectX 12 to Vulkan"
+    print_msg "$YELLOW" "  Result: Windows games run much faster on Linux!"
+    echo ""
+    install_pkg "dxvk-bin"
+    install_pkg "vkd3d"
+    install_pkg "lib32-vkd3d"
+}
+
+# Install ProtonUp-Qt
+install_protonup() {
+    print_msg "$GREEN" "Installing ProtonUp-Qt..."
+    print_msg "$CYAN" "Proton-GE is a community version of Proton with:"
+    print_msg "$YELLOW" "  Better game compatibility"
+    print_msg "$YELLOW" "  More bug fixes"
+    print_msg "$YELLOW" "  Faster updates than official Proton"
+    print_msg "$YELLOW" "Use this tool to install and update Proton-GE!"
+    echo ""
+    install_pkg "protonup-qt" "true"
+}
+
+# Install MangoHud
+install_mangohud() {
+    print_msg "$GREEN" "Installing MangoHud..."
+    print_msg "$CYAN" "MangoHud shows game performance in real-time:"
+    print_msg "$YELLOW" "  FPS (frames per second)"
+    print_msg "$YELLOW" "  CPU temperature and usage"
+    print_msg "$YELLOW" "  GPU temperature and usage"
+    print_msg "$YELLOW" "  RAM usage"
+    print_msg "Press Shift+F2 in-game to toggle the overlay!"
+    echo ""
+    install_pkg "mangohud"
+    install_pkg "lib32-mangohud"
+}
+
+# Install GameMode
+install_gamemode() {
+    print_msg "$GREEN" "Installing GameMode..."
+    print_msg "$CYAN" "GameMode automatically optimizes your system when gaming:"
+    print_msg "$YELLOW" "  Requests CPU performance mode"
+    print_msg "$YELLOW" "  Disables screensaver"
+    print_msg "$YELLOW" "  Optimizes I/O scheduling"
+    print_msg "$YELLOW" "  Better gaming performance!"
+    echo ""
+    install_pkg "gamemode"
+}
+
+# Install Gaming Dependencies
+install_gaming_deps() {
+    print_msg "$GREEN" "Installing Gaming Dependencies..."
+    print_msg "$CYAN" "These 32-bit libraries are required for:"
+    print_msg "$YELLOW" "  Steam games"
+    print_msg "$YELLOW" "  Wine/Proton"
+    print_msg "$YELLOW" "  Many Linux-native games"
+    print_msg "$YELLOW" "  Graphics drivers"
+    echo ""
+    check_multilib
+    install_pkg "lib32-gcc-libs"
+    install_pkg "lib32-libgl"
+    install_pkg "lib32-glibc"
+    install_pkg "lib32-libx11"
+    install_pkg "lib32-libxext"
+    install_pkg "lib32-libxcursor"
+    install_pkg "lib32-libxrandr"
+    install_pkg "lib32-libxinerama"
+    install_pkg "lib32-mesa"
+    install_pkg "lib32-vulkan-icd-loader"
+    install_pkg "vulkan-tools"
+    install_pkg "vulkan-icd-loader"
+    install_pkg "xdg-desktop-portal"
+}
+
+# Install Discord
+install_discord() {
+    print_msg "$GREEN" "Installing Discord..."
+    install_pkg "discord" "true"
+}
+
+# Install OBS Studio
+install_obs() {
+    print_msg "$GREEN" "Installing OBS Studio..."
+    install_pkg "obs-studio"
+}
+
+# Install RetroArch
+install_retroarch() {
+    print_msg "$GREEN" "Installing RetroArch..."
+    print_msg "$CYAN" "RetroArch can emulate:"
+    print_msg "$YELLOW" "  Nintendo: NES, SNES, Game Boy, N64, GameCube, Wii"
+    print_msg "$YELLOW" "  Sony: PlayStation, PSP"
+    print_msg "$YELLOW" "  Sega: Genesis, Saturn, Dreamcast"
+    print_msg "$YELLOW" "  And many more classic consoles!"
+    echo ""
+    install_pkg "retroarch"
+}
+
+# Install All
+install_all() {
+    print_msg "$GREEN" "Installing All Gaming Software..."
+    echo ""
+    
+    check_multilib
+    
+    print_msg "${BOLD}${CYAN}" "Step 1: Installing dependencies..."
+    install_gaming_deps
+    
+    print_msg "${BOLD}${CYAN}" "Step 2: Installing performance tools..."
+    install_gamemode
+    install_mangohud
+    
+    print_msg "${BOLD}${CYAN}" "Step 3: Installing game launchers..."
+    install_steam
+    install_lutris
+    install_heroic
+    
+    print_msg "${BOLD}${CYAN}" "Step 4: Installing Windows compatibility..."
+    install_dxvk_vkd3d
+    install_wine_proton
+    install_protonup
+    
+    print_msg "${BOLD}${CYAN}" "Step 5: Installing communication & streaming..."
+    install_discord
+    install_obs
+    
+    print_msg "${BOLD}${CYAN}" "Step 6: Installing emulation..."
+    install_retroarch
+    
+    echo ""
+    print_msg "$GREEN" "=========================================="
+    print_msg "$GREEN" "All gaming software installed!"
+    print_msg "$GREEN" "=========================================="
+    print_msg "$YELLOW" "Next steps:"
+    print_msg "$YELLOW" "  1. Restart your system"
+    print_msg "$YELLOW" "  2. Configure your GPU drivers (NVIDIA/AMD/Intel)"
+    print_msg "$YELLOW" "  3. Open Steam, go to Settings > Compatibility"
+    print_msg "$YELLOW" "  4. Use ProtonUp-Qt to install Proton-GE"
+    print_msg "$YELLOW" "  5. Launch your games and have fun!"
+}
+
+# Check system status
+check_status() {
+    clear
+    print_msg "$GREEN" "=========================================="
+    print_msg "$GREEN" "Gaming Software Status"
+    print_msg "$GREEN" "=========================================="
+    echo ""
+    
+    print_msg "${BOLD}${CYAN}" "Game Launchers:"
+    local launchers=(
+        "steam:Steam"
+        "lutris:Lutris"
+        "heroic-games-launcher-bin:Heroic Games Launcher"
+    )
+    
+    for item in "${launchers[@]}"; do
+        local pkg="${item%%:*}"
+        local name="${item##*:}"
+        if is_installed "$pkg"; then
+            if needs_update "$pkg"; then
+                print_msg "$YELLOW" "  ✓ $name (Update available)"
+            else
+                print_msg "$GREEN" "  ✓ $name (Installed, up to date)"
+            fi
+        else
+            print_msg "$RED" "  ✗ $name (Not installed)"
+        fi
+    done
+    
+    echo ""
+    print_msg "${BOLD}${CYAN}" "Windows Compatibility:"
+    local compat=(
+        "wine:Wine"
+        "wine-staging:Wine Staging"
+        "proton-ge-custom:Proton-GE"
+        "dxvk-bin:DXVK"
+        "vkd3d:VKD3D"
+        "protonup-qt:ProtonUp-Qt"
+    )
+    
+    for item in "${compat[@]}"; do
+        local pkg="${item%%:*}"
+        local name="${item##*:}"
+        if is_installed "$pkg"; then
+            if needs_update "$pkg"; then
+                print_msg "$YELLOW" "  ✓ $name (Update available)"
+            else
+                print_msg "$GREEN" "  ✓ $name (Installed, up to date)"
+            fi
+        else
+            print_msg "$RED" "  ✗ $name (Not installed)"
+        fi
+    done
+    
+    echo ""
+    print_msg "${BOLD}${CYAN}" "Performance & Monitoring:"
+    local perf=(
+        "mangohud:MangoHud"
+        "gamemode:GameMode"
+    )
+    
+    for item in "${perf[@]}"; do
+        local pkg="${item%%:*}"
+        local name="${item##*:}"
+        if is_installed "$pkg"; then
+            if needs_update "$pkg"; then
+                print_msg "$YELLOW" "  ✓ $name (Update available)"
+            else
+                print_msg "$GREEN" "  ✓ $name (Installed, up to date)"
+            fi
+        else
+            print_msg "$RED" "  ✗ $name (Not installed)"
+        fi
+    done
+    
+    echo ""
+    print_msg "${BOLD}${CYAN}" "Communication & Streaming:"
+    local comms=(
+        "discord:Discord"
+        "obs-studio:OBS Studio"
+    )
+    
+    for item in "${comms[@]}"; do
+        local pkg="${item%%:*}"
+        local name="${item##*:}"
+        if is_installed "$pkg"; then
+            if needs_update "$pkg"; then
+                print_msg "$YELLOW" "  ✓ $name (Update available)"
+            else
+                print_msg "$GREEN" "  ✓ $name (Installed, up to date)"
+            fi
+        else
+            print_msg "$RED" "  ✗ $name (Not installed)"
+        fi
+    done
+    
+    echo ""
+    print_msg "${BOLD}${CYAN}" "Emulation:"
+    local emu=(
+        "retroarch:RetroArch"
+    )
+    
+    for item in "${emu[@]}"; do
+        local pkg="${item%%:*}"
+        local name="${item##*:}"
+        if is_installed "$pkg"; then
+            if needs_update "$pkg"; then
+                print_msg "$YELLOW" "  ✓ $name (Update available)"
+            else
+                print_msg "$GREEN" "  ✓ $name (Installed, up to date)"
+            fi
+        else
+            print_msg "$RED" "  ✗ $name (Not installed)"
+        fi
+    done
+    
+    echo ""
+    print_msg "${BOLD}${CYAN}" "System Configuration:"
+    print_msg "$CYAN" "Gaming Dependencies:"
+    local deps=(
+        "lib32-gcc-libs"
+        "lib32-mesa"
+        "vulkan-icd-loader"
+        "lib32-vulkan-icd-loader"
+    )
+    
+    local deps_ok=true
+    for pkg in "${deps[@]}"; do
+        if ! is_installed "$pkg"; then
+            print_msg "$RED" "  ✗ $pkg"
+            deps_ok=false
+        fi
+    done
+    
+    if $deps_ok; then
+        print_msg "$GREEN" "  ✓ All gaming dependencies installed"
+    fi
+    
+    echo ""
+    print_msg "$CYAN" "Multilib Repository:"
+    if grep -q "^\[multilib\]" /etc/pacman.conf; then
+        print_msg "$GREEN" "  ✓ Enabled"
+    else
+        print_msg "$RED" "  ✗ Not enabled (needed for gaming)"
+    fi
+    
+    echo ""
+    read -p "Press Enter to continue..."
+}
+
+# Main loop
+while true; do
+    show_menu
+    read -p "Enter your choice (1-15): " choice
+    
+    case $choice in
+        1) install_steam ;;
+        2) install_lutris ;;
+        3) install_heroic ;;
+        4) install_wine_proton ;;
+        5) install_dxvk_vkd3d ;;
+        6) install_protonup ;;
+        7) install_mangohud ;;
+        8) install_gamemode ;;
+        9) install_gaming_deps ;;
+        10) install_discord ;;
+        11) install_obs ;;
+        12) install_retroarch ;;
+        13) install_all ;;
+        14) check_status ;;
+        15)
+            print_msg "$GREEN" "Goodbye!"
+            exit 0
+            ;;
+        *)
+            print_msg "$RED" "Invalid choice. Please try again."
+            ;;
+    esac
+    
+    echo ""
+    read -p "Press Enter to continue..."
+done

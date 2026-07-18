@@ -1,0 +1,119 @@
+#!/bin/bash
+# dwm-tabs - Tab management for dwm via tabbed reparenting.
+# Adapted from bspwm-tabs.
+
+set -uo pipefail
+
+readonly TABBED="${TABBED:-$HOME/.config/dwm/tabbed/tabbed}"
+readonly CLASS="dwm-tabbed"
+
+is_tab() {
+    [ -n "${1:-}" ] && xprop -id "$1" WM_CLASS 2>/dev/null | grep -q "\"$CLASS\""
+}
+
+window_xy() {
+    xdotool getwindowgeometry --shell "$1" 2>/dev/null \
+        | awk -F= '/^X=/{x=$2} /^Y=/{y=$2} END{print x, y}'
+}
+
+# Geometry "MX MY MW MH" of the monitor containing window $1.
+window_monitor() {
+    local x y
+    read -r x y <<<"$(window_xy "$1")"
+    [ -z "$x" ] && return 1
+    xrandr --listactivemonitors | awk -v x="$x" -v y="$y" '
+        /^ *[0-9]+:/ {
+            split($3, g, "[x+/]")
+            mw=g[1]; mh=g[3]; mx=g[5]; my=g[6]
+            if (x >= mx && x < mx+mw && y >= my && y < my+mh) {
+                print mx, my, mw, mh; exit
+            }
+        }'
+}
+
+# First visible tab container on the same monitor as the active window.
+find_tab() {
+    local active mx my mw mh wid wx wy
+    active=$(xdotool getactivewindow 2>/dev/null) || return 1
+    read -r mx my mw mh <<<"$(window_monitor "$active")"
+    [ -z "${mx:-}" ] && return 1
+    while read -r wid; do
+        read -r wx wy <<<"$(window_xy "$wid")"
+        [ -z "$wx" ] && continue
+        if [ "$wx" -ge "$mx" ] && [ "$wx" -lt "$((mx+mw))" ] \
+        && [ "$wy" -ge "$my" ] && [ "$wy" -lt "$((my+mh))" ]; then
+            echo "$wid"; return
+        fi
+    done < <(xdotool search --onlyvisible --classname "$CLASS" 2>/dev/null)
+    return 1
+}
+
+# Spawn an empty tabbed container, poll until viewable, return its xid.
+create_tab() {
+    local xid bin tries
+    if [ -x "$TABBED" ]; then bin=$TABBED; else bin=tabbed; fi
+    xid=$("$bin" -d -c -n "$CLASS" 2>/dev/null) || return 1
+    [ -n "$xid" ] || return 1
+    for ((tries=0; tries<40; tries++)); do
+        xwininfo -id "$xid" 2>/dev/null | grep -q "IsViewable" \
+            && { echo "$xid"; return; }
+        sleep 0.025
+    done
+    return 1
+}
+
+# Reparent $1 into container $2.
+attach_to() {
+    local src=$1 dst=$2
+    is_tab "$src" && return 1
+    xdotool windowunmap --sync "$src" \
+            windowreparent "$src" "$dst" \
+            windowmap --sync "$src" \
+            windowfocus "$dst"
+}
+
+cmd_attach() {
+    local src dst
+    src=$(xdotool getactivewindow 2>/dev/null) \
+        || { echo "no focused window" >&2; return 1; }
+    is_tab "$src" && { echo "already a tab container"; return 0; }
+    dst=$(find_tab) || dst=$(create_tab) \
+        || { echo "could not make tab container" >&2; return 1; }
+    attach_to "$src" "$dst"
+}
+
+cmd_detach() {
+    local f parent child root remaining
+    f=$(xdotool getactivewindow 2>/dev/null) \
+        || { echo "no focused window" >&2; return 1; }
+    root=$(xwininfo -root 2>/dev/null | awk '/Window id:/ {print $4}')
+
+    if is_tab "$f"; then
+        parent=$f
+        child=$(xwininfo -id "$f" -children 2>/dev/null \
+                | awk '/^ +0x/ {print $1; exit}')
+    else
+        parent=$(xwininfo -id "$f" -tree 2>/dev/null \
+                 | awk '/Parent window/ {print $4}')
+        is_tab "$parent" || { echo "not in a tab container" >&2; return 1; }
+        child=$f
+    fi
+
+    [ -z "$child" ] && { xdotool windowkill "$parent"; return 0; }
+
+    xdotool windowunmap --sync "$child" \
+            windowreparent "$child" "$root" \
+            windowmap --sync "$child" \
+            windowfocus "$child"
+
+    remaining=$(xwininfo -id "$parent" -children 2>/dev/null \
+                | grep -c '^ \+0x' || true)
+    [ "$remaining" -eq 0 ] && xdotool windowkill "$parent"
+}
+
+case "${1:-attach}" in
+    attach) cmd_attach ;;
+    detach) cmd_detach ;;
+    create) create_tab ;;
+    *) echo "usage: dwm-tabs {attach|detach|create}" >&2; exit 1 ;;
+esac

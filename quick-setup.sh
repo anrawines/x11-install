@@ -1,51 +1,30 @@
 #!/bin/bash
 
-##############################################################################
-# Quick Start Script for bspwm Setup
-# Run this script to quickly clone and setup bspwm
-##############################################################################
+# Quick setup - clones repo and runs installer
 
-set -e
+set -euo pipefail
 
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+REPO_URL="https://github.com/anrawines/x11-install.git"
+INSTALL_DIR="$HOME/.local/x11-install"
 
-echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║   bspwm Arch Linux Quick Installer     ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
-echo ""
+echo "X11 Tiling WM Quick Setup"
+echo "========================"
 
-# Check if git is installed
-if ! command -v git &> /dev/null; then
-    echo "Error: git is not installed. Please install git first:"
-    echo "  sudo pacman -S git"
-    exit 1
-fi
-
-# Clone repository if not already present
-REPO_DIR="${HOME}/Projects/x11-bspwm"
-
-if [ ! -d "$REPO_DIR" ]; then
-    echo "📦 Cloning repository..."
-    git clone https://github.com/anrawines/x11-bspwm.git "$REPO_DIR"
+# Clone repository
+if [[ -d "$INSTALL_DIR" ]]; then
+    read -p "Directory already exists. Update? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        cd "$INSTALL_DIR"
+        git pull origin main
+    fi
 else
-    echo "✓ Repository already exists at $REPO_DIR"
-    echo "  Updating..."
-    cd "$REPO_DIR"
-    git pull origin main
+    git clone "$REPO_URL" "$INSTALL_DIR"
+    cd "$INSTALL_DIR"
 fi
 
-cd "$REPO_DIR"
+# Make installer executable
+chmod +x install.sh
 
-echo ""
-echo "${GREEN}✓${NC} Repository ready at: $REPO_DIR"
-echo ""
-echo "Next steps:"
-echo "  1. cd $REPO_DIR"
-echo "  2. Review and customize packages/base.txt and packages/additional.txt"
-echo "  3. ./install.sh"
-echo ""
-echo "For more information, see README.md"
-echo ""
+# Run installer
+./install.sh

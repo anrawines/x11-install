@@ -1,0 +1,40 @@
+# Packages for bspwm
+bspwm
+sxhkd
+xcb-util
+xcb-util-wm
+polybar
+feh
+
+# Additional
+picom
+rofi
+dunst
+
+# Display and graphics (base)
+xorg-server
+xorg-xinit
+xorg-xrandr
+xorg-xsetroot
+xorg-xprop
+xorg-xhost
+xorg-xbacklight
+
+# Sound
+pavucontrol
+pamixer
+pipewire
+pipewire-pulse
+wireplumber
+
+# Utilities
+wget
+curl
+unzip
+zip
+
+# Fonts
+ttf-dejavu
+ttf-liberation
+noto-fonts
+ttf-nerd-fonts-symbols

@@ -1,290 +1,216 @@
-# bspwm Arch Linux Installer
+# X11 Tiling Window Manager Installer for Arch Linux
 
-A modular, automated installer script for setting up **bspwm** (Binary Space Partitioning Window Manager) on Arch Linux with all necessary components and configuration.
+A clean, modular installer for setting up **multiple tiling window managers** on Arch Linux with all necessary packages and configurations.
 
 ## Features
 
-✅ **Modular Design** - Organized scripts for different installation phases
-✅ **Automatic Package Management** - Handles both pacman and AUR packages
-✅ **Configuration Management** - Creates directory structure and syncs dotfiles
-✅ **Login Manager Support** - Auto-detects and configures xinit, lightdm, gdm, sddm
-✅ **Easy Customization** - Simple package lists and example configurations
-✅ **Safe Installation** - Backs up existing configuration files
+- ✅ **Multi-WM Support** - Install multiple window managers (i3, bspwm, xmonad, awesome, dwm, etc.)
+- ✅ **Category-Based Selection** - Choose WMs and program packages by category (laptop, dev, additional)
+- ✅ **Modular & Organized** - Clear separation of concerns with easy customization
+- ✅ **Smart Package Management** - Skips already-installed packages, handles both pacman and AUR
+- ✅ **Configuration Sync** - Automatically syncs dotfiles to ~/.config and ~/.local/
+- ✅ **Display Manager Auto-Config** - Detects and configures lightdm, sddm, gdm, lxdm
+- ✅ **Safe & Non-Destructive** - Backs up existing configs before syncing
+
+## Quick Start
+
+### Clone and Run
+```bash
+git clone --depth 1 https://github.com/anrawines/x11-install.git
+cd x11-install
+chmod +x install.sh
+./install.sh
+```
+
+### One-Command Setup
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/anrawines/x11-install/main/quick-setup.sh)
+```
+
+## Installation Flow
+
+1. **System Checks** - Verify Arch Linux, internet, and disk space
+2. **Helper Selection** - Choose pacman helper (pacman, yay, or paru)
+3. **Window Manager Selection** - Select WMs from `packages/wm/` by number
+4. **Program Selection** - Choose optional program packages (laptop, dev, additional, etc.)
+5. **Installation & Config** - Install packages and sync dotfiles
 
 ## Project Structure
 
 ```
-x11-bspwm/
-├── install.sh              # Main installation script
-├── README.md               # This file
-├── modules/                # Modular installation scripts
-│   ├── packages.sh         # Package installation logic
-│   ├── system.sh           # System services configuration
-│   ├── directories.sh      # Directory structure setup
-│   ├── dotfiles.sh         # Dotfiles synchronization
-│   └── config.sh           # Login manager and final config
-├── packages/               # Package lists
-│   ├── base.txt            # Essential packages
-│   ├── additional.txt       # Optional packages
-│   └── aur.txt             # AUR packages
-├── config/                 # Example configuration files
-│   ├── bspwmrc.example     # bspwm configuration
-│   ├── sxhkdrc.example     # Hotkey configuration
-│   ├── polybar.example     # Status bar configuration
-│   └── picom.example       # Compositor configuration
-└── dotfiles/               # Your dotfiles (to be synced)
-    ├── config/             # ~/.config files
-    ├── local_bin/          # ~/.local/bin scripts
-    └── local_share/        # ~/.local/share files
+x11-install/
+├── install.sh                  # Main installation script
+├── quick-setup.sh              # One-liner setup
+├── README.md                   # This file
+├── modules/                    # Installation modules
+│   ├── colors.sh               # Color definitions
+│   ├── logger.sh               # Logging functions
+│   ├── validators.sh           # System validation
+│   ├── helpers.sh              # User input & selection
+│   ├── directories.sh          # Directory setup
+│   ├── packages.sh             # Package installation
+│   ├── dotfiles.sh             # Config syncing
+│   ├── services.sh             # Display manager setup
+│   └── pacman.sh               # Pacman configuration
+├── packages/                   # Package lists by category
+│   ├── wm/                     # Window managers
+│   │   ├── i3.txt
+│   │   ├── bspwm.txt
+│   │   ├── xmonad.txt
+│   │   └── awesome.txt
+│   ├── program/                # Optional programs (user selectable)
+│   │   ├── laptop.txt          # Laptop-specific packages
+│   │   ├── additional.txt      # General utilities
+│   │   └── dev.txt             # Development tools
+│   └── laptop.txt              # Always installed on laptops
+└── dotfiles/                   # Configuration templates
+    ├── config/                 # ~/.config/
+    ├── local-bin/              # ~/.local/bin/
+    └── local-share/            # ~/.local/share/ (fonts, themes, icons)
 ```
-
-## Prerequisites
-
-- **Arch Linux** system
-- **sudo** access (without requiring password for pacman, optional)
-- **git** installed
-- Internet connection
-
-## Quick Start
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/yourusername/x11-bspwm.git
-cd x11-bspwm
-```
-
-### 2. Make the install script executable
-
-```bash
-chmod +x install.sh
-```
-
-### 3. Run the installer
-
-```bash
-./install.sh
-```
-
-The installer will:
-1. Check system requirements
-2. Install base and additional packages
-3. Create necessary directory structure
-4. Sync dotfiles
-5. Configure login manager
-6. Provide next steps
 
 ## Customization
 
-### Modify Package Lists
+### Add or Modify Package Lists
 
-Edit the package files to add/remove packages:
-
+Create a new category file in `packages/program/`:
 ```bash
-# Essential packages
-vim packages/base.txt
+# Create a new category
+nano packages/program/gaming.txt
 
-# Optional packages
-vim packages/additional.txt
+# Add packages (one per line)
+steam
+lutris
+wine
+```
 
-# AUR packages (optional)
-vim packages/aur.txt
+Then when you run the installer, `gaming` will appear as an option to select.
+
+### Edit Existing Categories
+```bash
+# Modify window managers
+nano packages/wm/i3.txt
+
+# Modify program categories
+nano packages/program/laptop.txt
+nano packages/program/dev.txt
 ```
 
 ### Add Your Dotfiles
 
-Place your configuration files in the appropriate directories:
-
 ```bash
-# bspwm configuration
-cp ~/.config/bspwm/bspwmrc dotfiles/config/bspwm/
-
-# Hotkey configuration
-cp ~/.config/sxhkd/sxhkdrc dotfiles/config/sxhkd/
-
-# Custom scripts
-cp ~/.local/bin/myscript dotfiles/local_bin/
-
-# Shell configuration
-cp ~/.bashrc dotfiles/
-cp ~/.zshrc dotfiles/
+# Copy your configs (installer will sync these)
+cp -r ~/.config/i3 dotfiles/config/
+cp -r ~/.config/alacritty dotfiles/config/
+cp -r ~/.local/bin/myscript dotfiles/local-bin/
+cp -r ~/.local/share/fonts/* dotfiles/local-share/fonts/
 ```
 
-### Use Your Own Configurations
+## Modules Overview
 
-Replace the example files:
+| Module | Purpose |
+|--------|---------|
+| `install.sh` | Main orchestrator |
+| `validators.sh` | System checks (Arch, internet, disk) |
+| `helpers.sh` | User selection menus & prompts |
+| `directories.sh` | XDG directory setup |
+| `packages.sh` | Package loading, filtering, installation |
+| `dotfiles.sh` | Configuration file syncing |
+| `services.sh` | Display manager detection & setup |
 
-```bash
-# For bspwmrc
-cp your-bspwmrc config/bspwmrc.example
+## Usage
 
-# For sxhkdrc
-cp your-sxhkdrc config/sxhkdrc.example
+### After Installation
 
-# For polybar
-cp your-polybar config/polybar.example
+1. **Log out and back in** for group changes to take effect
+2. **Select WM at login screen** from session menu
+3. **Customize config** in `~/.config/<wm>/`
+4. **Add scripts** to `~/.local/bin/`
+
+### Keybind Reference
+Press `WIN+/` to view keybindings in most WMs (if configured).
+
+### Important Directories
 ```
-
-## Files Overview
-
-### Main Script (`install.sh`)
-- Handles logging and user interaction
-- Loads and executes modules
-- Provides step-by-step installation feedback
-
-### Modules
-
-#### `modules/packages.sh`
-- Installs packages from pacman repositories
-- Handles optional AUR package installation
-- Auto-generates default package lists if missing
-- Supports yay or paru as AUR helpers
-
-#### `modules/system.sh`
-- Enables multilib repository (for 64-bit systems)
-- Configures D-Bus
-- Provides utilities for service management
-
-#### `modules/directories.sh`
-- Creates ~/.config subdirectories
-- Creates ~/.local/bin and ~/.local/share structure
-- Optionally generates skeleton configuration files
-
-#### `modules/dotfiles.sh`
-- Syncs dotfiles from the dotfiles/ directory
-- Backs up existing configurations with .bak suffix
-- Supports .bashrc, .zshrc, and custom configurations
-
-#### `modules/config.sh`
-- Detects available login managers
-- Configures selected login manager
-- Generates ~/.xinitrc for xinit users
-- Sets up font cache
-
-## Configuration Examples
-
-### Example: bspwmrc
-
-The `config/bspwmrc.example` includes:
-- Monitor and desktop setup
-- Border and gap configuration
-- Color scheme (Nord theme)
-- Autostart applications (sxhkd, picom, dunst)
-- Window rules for specific applications
-
-Customize by editing the example or providing your own.
-
-### Example: sxhkdrc
-
-The `config/sxhkdrc.example` includes:
-- Terminal launcher (super + Return)
-- Application menu (super + space)
-- Window navigation and management
-- Desktop switching
-- Volume/brightness controls
-
-### Example: polybar
-
-Basic polybar configuration with:
-- bspwm workspace indicators
-- Window title display
-- System stats (CPU, RAM)
-- Date and time
-- Pulse audio volume control
-
-### Example: picom
-
-Compositor configuration with:
-- Shadow effects
-- Smooth fading transitions
-- Opacity rules
-- Backend optimization
-
-## Usage After Installation
-
-### Starting bspwm
-
-**With xinit:**
-```bash
-startx
+~/.config/i3/              # i3 config
+~/.config/alacritty/       # Terminal config
+~/.local/bin/              # Custom scripts
+~/.local/share/fonts/      # Custom fonts
 ```
-
-**With a login manager:**
-1. Log in through the login screen
-2. Select "bspwm" from the session menu
-3. Enter your password
-
-### Hotkey Cheat Sheet
-
-| Action | Keys |
-|--------|------|
-| New terminal | `super + Return` |
-| App launcher | `super + space` |
-| Close window | `super + w` |
-| Focus window | `super + hjkl` |
-| Move window | `super + shift + hjkl` |
-| Switch desktop | `super + 1-5` |
-| Send to desktop | `super + shift + 1-5` |
-| Toggle floating | `super + shift + space` |
-| Fullscreen | `super + f` |
-| Monocle layout | `super + m` |
-
-See `config/sxhkdrc.example` for complete hotkey list.
 
 ## Troubleshooting
 
-### Installation fails at package installation
+### Installation fails - package not found
+```bash
+# Check package name
+pacman -Ss package-name
+yay -Ss package-name  # For AUR packages
+```
 
-- Ensure you have internet connectivity
-- Try updating pacman first: `sudo pacman -Syu`
-- Check that the package names in `packages/base.txt` are correct for your Arch version
+### Window manager won't start
+```bash
+# Verify installation
+pacman -Q i3
 
-### X won't start
+# Check config
+cat ~/.config/i3/config
 
-- Verify xorg packages are installed: `pacman -Q xorg-server`
-- Check ~/.xinitrc exists and is executable
-- Review logs: `startx 2>&1 | tee startx.log`
+# Test start
+i3 --version
+```
 
-### bspwm doesn't start
+### Display manager issues
+```bash
+# Check status
+systemctl status lightdm
 
-- Ensure bspwm is installed: `pacman -Q bspwm`
-- Check ~/.config/bspwm/bspwmrc exists and is executable
-- Verify sxhkd is running and configured correctly
+# View logs
+journalctl -u lightdm -n 50
 
-### AUR package installation fails
+# Restart
+sudo systemctl restart lightdm
+```
 
-- Install an AUR helper: `yay -Sy` or `paru -Sy`
-- Update packages: `yay -Su`
+### Package conflicts (AUR)
+The installer uses `--ask=4` for automatic resolution. If issues persist:
+```bash
+# Manual install
+yay -S package-name --ask=4
+```
 
 ## Contributing
 
-Feel free to improve this installer! Some ideas:
+Areas for improvement:
+- Add support for more window managers
+- Create themed configuration variants
+- Add configuration wizard mode
+- Improve error recovery
+- Add uninstall functionality
 
-- Add support for other Linux distributions
-- Create themed package/config variants
-- Add pre/post-installation hooks
-- Create configuration wizard mode
+## Resources
+
+**Window Managers**
+- [i3 WM](https://i3wm.org/)
+- [bspwm](https://github.com/baskerville/bspwm)
+- [XMonad](https://xmonad.org/)
+- [Awesome](https://awesomewm.org/)
+
+**Arch Wiki**
+- [General recommendations](https://wiki.archlinux.org/title/General_recommendations)
+- [Display Manager](https://wiki.archlinux.org/title/Display_manager)
+- [Xorg](https://wiki.archlinux.org/title/Xorg)
 
 ## License
 
 MIT License - Feel free to use and modify
 
-## Resources
-
-- [bspwm Documentation](https://github.com/baskerville/bspwm)
-- [sxhkd Documentation](https://github.com/baskerville/sxhkd)
-- [Arch Wiki - bspwm](https://wiki.archlinux.org/title/bspwm)
-- [Arch Wiki - xinit](https://wiki.archlinux.org/title/Xinit)
-
 ## Support
 
-For issues or questions:
-1. Check the Troubleshooting section
-2. Review configuration examples in `config/`
-3. Consult the official documentation links
-4. Open an issue on the repository
+For issues:
+1. Check **Troubleshooting** section above
+2. Review config examples in `dotfiles/`
+3. Open an issue on [GitHub](https://github.com/anrawines/x11-install/issues)
 
 ---
 
-**Happy tiling!** 🎹
-
+**Happy tiling!** 🎹✨

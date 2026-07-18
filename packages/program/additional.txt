@@ -1,0 +1,52 @@
+# Development
+base-devel
+
+# Files
+thunar
+gvfs
+thunar-volman
+ntfs-3g
+tumbler
+thunar-archive-plugin
+ffmpegthumbnailer
+xarchiver
+
+# Internet
+firefox
+firefox-ublock-origin
+
+# Terminal and shell
+alacritty
+kitty
+
+# Media
+feh
+mpv
+scrot
+imv
+
+# System utilities and tools
+fastfetch
+fzf
+eza
+ripgrep
+bat
+duf
+xclip
+
+# Optional: Additional window managers/tools
+xdotool
+numlockx
+unclutter
+
+# Optional: Themes and styling
+lxappearance
+#adwaita-dark
+#papirus-folders
+#vimix-icon-theme
+
+# fonts
+ttf-jetbrains-mono-nerd
+
+# lock screen
+i3lock-color

@@ -1,0 +1,40 @@
+# AwesomeWM Window Manager
+
+# Core WM
+awesome
+
+# Additional
+picom
+rofi
+dunst
+
+# Display and graphics (base)
+xorg-server
+xorg-xinit
+xorg-xrandr
+xorg-xsetroot
+xorg-xprop
+xorg-xhost
+xorg-xbacklight
+xorg-xset
+
+# Sound
+pavucontrol
+pamixer
+pipewire
+pipewire-pulse
+wireplumber
+
+# Utilities
+wget
+curl
+unzip
+zip
+imagemagick
+
+# Fonts
+ttf-roboto
+ttf-dejavu
+ttf-liberation
+noto-fonts
+ttf-nerd-fonts-symbols

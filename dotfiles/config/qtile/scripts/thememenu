@@ -1,0 +1,185 @@
+#!/bin/bash
+
+# Theme switcher for Qtile using rofi
+# Swaps: qtile colors, wallpaper, dunst, rofi, ghostty, GTK theme + icons
+
+export PATH="$HOME/.local/bin:$PATH"
+
+CONFIG="$HOME/.config/qtile/config.py"
+AUTOSTART="$HOME/.config/qtile/scripts/autostart.sh"
+WALLPAPER_DIR="$HOME/.config/qtile/wallpaper"
+THEMES_DIR="$HOME/.config/qtile/themes"
+DUNST_CONF="$HOME/.config/qtile/dunst/dunstrc"
+ROFI_DIR="$HOME/.config/qtile/rofi"
+GHOSTTY_CONF="$HOME/.config/ghostty/config"
+WEZTERM_CONF="$HOME/.config/wezterm/wezterm.lua"
+GTK3_CONF="$HOME/.config/gtk-3.0/settings.ini"
+
+declare -A themes=(
+    ["Catppuccin"]="catppuccin"
+    ["Doom One"]="doomone"
+    ["Dracula"]="dracula"
+    ["Everforest"]="everforest"
+    ["GitHub Dark"]="github_dark"
+    ["Gruvbox"]="gruvbox"
+    ["Gruvbox Light"]="gruvbox_light"
+    ["Kanagawa"]="kanagawa"
+    ["Monokai"]="monokai"
+    ["Moonfly"]="moonfly"
+    ["Nord"]="nord"
+    ["Retro"]="retro"
+)
+
+# Wallpaper per theme
+declare -A wallpapers=(
+    ["catppuccin"]="wallhaven-d61z1m_3440x1440.png"
+    ["doomone"]="wallhaven-d8633m_3440x1440.png"
+    ["dracula"]="wallhaven-kw5yy7_3440x1440.png"
+    ["everforest"]="wallhaven-d697og_3440x1440.png"
+    ["github_dark"]="wallhaven-218x7m_3440x1440.png"
+    ["gruvbox"]="gruvbox-dark-debian-scalable.svg"
+    ["gruvbox_light"]="gruvbox-dark-debian-scalable.svg"
+    ["kanagawa"]="wallhaven-jx9mzp_3440x1440.png"
+    ["monokai"]="wallhaven-3q9vmd_3440x1440.png"
+    ["moonfly"]="wallhaven-x6gmxl_3440x1440.png"
+    ["nord"]="wallhaven-6k1dj7_3440x1440.png"
+    ["retro"]="debdino.png"
+)
+
+# Ghostty theme names (from ghostty +list-themes)
+declare -A ghostty_themes=(
+    ["catppuccin"]="Catppuccin Mocha"
+    ["doomone"]="Doom One"
+    ["dracula"]="Dracula"
+    ["everforest"]="Everforest Dark Hard"
+    ["github_dark"]="GitHub Dark"
+    ["gruvbox"]="Gruvbox Dark"
+    ["gruvbox_light"]="Gruvbox Light"
+    ["kanagawa"]="Kanagawa Wave"
+    ["monokai"]="Monokai Remastered"
+    ["moonfly"]="Moonfly"
+    ["nord"]="Nord"
+    ["retro"]="Retro"
+)
+
+# Wezterm color schemes (from builtin schemes)
+declare -A wezterm_themes=(
+    ["catppuccin"]="Catppuccin Mocha"
+    ["doomone"]="DoomOne"
+    ["dracula"]="Dracula"
+    ["everforest"]="Everforest Dark Hard (Gogh)"
+    ["github_dark"]="Github Dark (Gogh)"
+    ["gruvbox"]="Gruvbox Dark (Gogh)"
+    ["gruvbox_light"]="Gruvbox Light"
+    ["kanagawa"]="Kanagawa (Gogh)"
+    ["monokai"]="Monokai Remastered"
+    ["moonfly"]="Moonfly (Gogh)"
+    ["nord"]="Nord (Gogh)"
+    ["retro"]="Retro"
+)
+
+# GTK themes
+declare -A gtk_themes=(
+    ["catppuccin"]="Orchis-Purple-Dark"
+    ["doomone"]="Orchis-Dark"
+    ["dracula"]="Orchis-Purple-Dark-Dracula"
+    ["everforest"]="Orchis-Green-Dark"
+    ["github_dark"]="Orchis-Grey-Dark"
+    ["gruvbox"]="Orchis-Orange-Dark"
+    ["gruvbox_light"]="Orchis-Orange-Dark"
+    ["kanagawa"]="Orchis-Orange-Dark"
+    ["monokai"]="Orchis-Pink-Dark"
+    ["moonfly"]="Orchis-Dark"
+    ["nord"]="Orchis-Dark-Nord"
+    ["retro"]="Orchis-Orange-Dark"
+)
+
+# Icon themes
+declare -A icon_themes=(
+    ["catppuccin"]="Colloid-Catppuccin-Dark"
+    ["doomone"]="Colloid-Dark"
+    ["dracula"]="Colloid-Dracula-Dark"
+    ["everforest"]="Colloid-Everforest-Dark"
+    ["github_dark"]="Colloid-Grey-Dracula-Dark"
+    ["gruvbox"]="Colloid-Gruvbox-Dark"
+    ["gruvbox_light"]="Colloid-Gruvbox-Light"
+    ["kanagawa"]="Colloid-Orange-Dark"
+    ["monokai"]="Colloid-Dark"
+    ["moonfly"]="Colloid-Dark"
+    ["nord"]="Colloid-Nord-Dark"
+    ["retro"]="Colloid-Orange-Dark"
+)
+
+# Get current theme for display
+current=$(grep -oP '= \K\w+(?=\(\))' "$CONFIG")
+
+# Show menu
+chosen=$(printf '%s\n' "${!themes[@]}" | sort | rofi -dmenu -i -p "Theme ($current)" -theme ~/.config/qtile/rofi/config.rasi)
+
+[ -z "$chosen" ] && exit 0
+
+target="${themes[$chosen]}"
+
+if [[ -z "$target" ]]; then
+    notify-send "Theme" "Unknown theme: $chosen" -t 2000 -u critical
+    exit 1
+fi
+
+if [[ "$current" == "$target" ]]; then
+    notify-send "Theme" "Already using $chosen" -t 1500 -u low
+    exit 0
+fi
+
+# Verify theme templates exist
+if [[ ! -d "$THEMES_DIR/$target" ]]; then
+    notify-send "Theme" "Missing templates for $chosen" -t 2000 -u critical
+    exit 1
+fi
+
+# 1. Swap qtile theme in config.py
+sed -i "s/= ${current}()/= ${target}()/" "$CONFIG"
+
+# 2. Set wallpaper
+wp="${wallpapers[$target]}"
+feh --bg-fill "$WALLPAPER_DIR/$wp"
+sed -i "s|feh --bg-fill.*|feh --bg-fill $WALLPAPER_DIR/$wp \&|" "$AUTOSTART"
+
+# 3. Copy dunst template and restart dunst
+cp "$THEMES_DIR/$target/dunstrc" "$DUNST_CONF"
+killall dunst 2>/dev/null
+dunst -config "$DUNST_CONF" &
+sleep 0.3
+notify-send "Theme" "Switched to $chosen" -t 2000 -u normal
+
+# 4. Copy rofi templates
+cp "$THEMES_DIR/$target/config.rasi" "$ROFI_DIR/config.rasi"
+cp "$THEMES_DIR/$target/power.rasi" "$ROFI_DIR/power.rasi"
+cp "$THEMES_DIR/$target/keybinds.rasi" "$ROFI_DIR/keybinds.rasi"
+
+# 5. Swap ghostty theme and reload running terminals
+ghostty_theme="${ghostty_themes[$target]}"
+sed -i "s|^theme = .*|theme = ${ghostty_theme}|" "$GHOSTTY_CONF"
+for wid in $(xdotool search --class ghostty); do
+    xdotool key --window "$wid" ctrl+alt+r
+done
+
+# 6. Swap wezterm color scheme (wezterm auto-reloads on file change)
+wezterm_theme="${wezterm_themes[$target]}"
+if [[ -f "$WEZTERM_CONF" && -n "$wezterm_theme" ]]; then
+    sed -i "s|^config\.color_scheme = .*|config.color_scheme = \"${wezterm_theme}\"|" "$WEZTERM_CONF"
+fi
+
+# 7. Swap GTK theme and icons
+gtk_theme="${gtk_themes[$target]}"
+icon_theme="${icon_themes[$target]}"
+# Update settings.ini for new app launches
+sed -i "s|^gtk-theme-name=.*|gtk-theme-name=${gtk_theme}|" "$GTK3_CONF"
+sed -i "s|^gtk-icon-theme-name=.*|gtk-icon-theme-name=${icon_theme}|" "$GTK3_CONF"
+# Update xsettingsd and restart to live-refresh all running GTK apps
+sed -i "s|^Net/ThemeName .*|Net/ThemeName \"${gtk_theme}\"|" "$HOME/.xsettingsd"
+sed -i "s|^Net/IconThemeName .*|Net/IconThemeName \"${icon_theme}\"|" "$HOME/.xsettingsd"
+killall xsettingsd 2>/dev/null
+xsettingsd &
+
+# 8. Restart qtile to apply
+qtile cmd-obj -o cmd -f restart

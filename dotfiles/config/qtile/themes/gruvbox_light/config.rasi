@@ -1,0 +1,122 @@
+  * {
+        bg: #fbf1c7;
+        background-color: @bg;
+    }
+
+    configuration {
+	    show-icons: true;
+	    icon-theme: "Papirus";
+	    location: 0;
+	    font: "JetBrainsMono Nerd Font 12";
+	    display-drun: "Launch:";
+    }
+
+    window {
+	    width: 45%;
+	    transparency: "real";
+	    orientation: vertical;
+	    border-color: #d79921;
+        border-radius: 10px;
+    }
+
+    mainbox {
+	    children: [inputbar, listview];
+    }
+
+
+    // ELEMENT
+    // -----------------------------------
+
+    element {
+	    padding: 4 12;
+	    text-color: #fbf1c7;
+        border-radius: 5px;
+    }
+
+    element selected {
+	    text-color: #282828;
+	    background-color: #d79921;
+    }
+
+    element-text {
+	    background-color: inherit;
+	    text-color: inherit;
+    }
+
+    element-icon {
+	    size: 16 px;
+	    background-color: inherit;
+	    padding: 0 6 0 0;
+	    alignment: vertical;
+    }
+
+	element.selected.active {
+		background-color: #fbf1c7;
+		text-color: #282828;
+	}
+
+	element.alternate.normal {
+		background-color: #fbf1c7;
+		text-color: #282828;
+	}
+
+
+	element.alternate.active {
+		background-color: #d79921;
+		text-color: #282828;
+	}
+
+	element.selected.normal {
+		background-color: #d79921;
+		text-color: #fbf1c7;
+	}
+
+
+	element.normal.active {
+		background-color: #fbf1c7;
+		text-color: #282828;
+	}
+
+
+	element.normal.normal {
+		background-color: #fbf1c7;
+		text-color: #282828;
+	}
+
+	element.normal.urgent {
+		background-color: #cc241d;
+		text-color: #fbf1c7;
+	}
+
+
+
+    listview {
+	    columns: 2;
+	    lines: 9;
+	    padding: 8 0;
+	    fixed-height: true;
+	    fixed-columns: true;
+	    fixed-lines: true;
+	    border: 0 10 6 10;
+    }
+
+    // INPUT BAR
+    //------------------------------------------------
+
+    entry {
+	    text-color: #b16286;
+	    padding: 10 10 0 0;
+	    margin: 0 -2 0 0;
+    }
+
+    inputbar {
+	    padding: 10 0 0;
+	    margin: 0 0 0 0;
+    }
+
+    prompt {
+	    text-color: #458588;
+	    padding: 10 6 0 10;
+	    margin: 0 -2 0 0;
+    }
+

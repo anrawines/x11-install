@@ -1,0 +1,10 @@
+[Configuration]
+LastActiveMode=THUNAR_RENAMER_MODE_EXTENSION
+LastActiveRenamer=ThunarSbrInsertRenamer
+
+[ThunarSbrInsertRenamer]
+Offset=0
+Text=jpg
+Mode=THUNAR_SBR_INSERT_MODE_OVERWRITE
+OffsetMode=THUNAR_SBR_OFFSET_MODE_LEFT
+

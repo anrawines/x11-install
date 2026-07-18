@@ -13,6 +13,12 @@ dotfiles/*.bak.*
 # Temporary files
 *.tmp
 *.log
+*.backup
+*.bak
+
+GEMINI.md
+.git/
+.github/
 
 # Package caches
 .cache/

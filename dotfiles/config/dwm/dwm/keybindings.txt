@@ -1,0 +1,133 @@
+# === LAUNCH ===
+Super + Return	Launch terminal (ghostty)
+Super + Shift + Return	Toggle terminal scratchpad
+Super + Shift + a	Toggle pulsemixer scratchpad
+Super + r	Toggle ranger scratchpad
+Super + p	Launch dmenu (alt launcher)
+
+# === WINDOW ===
+Super + Right	Focus next window in stack
+Super + Left	Focus previous window in stack
+Super + Shift + Right	Move focused window forward in stack
+Super + Shift + Left	Move focused window backward in stack
+Super + Control + Left	Decrease master area width
+Super + Control + Right	Increase master area width
+Super + Alt + Shift + Tab	Increase master window count
+Super + Alt + Tab	Decrease master window count
+Super + q	Kill focused window
+Super + Shift + Space	Toggle floating
+Super + y	Toggle sticky
+Super + Shift + f	Toggle fullscreen
+Super + Shift + m	Toggle maximize
+Super + Control + Shift + h	Toggle horizontal maximize
+Super + Control + Shift + l	Toggle horizontal maximize
+Super + Control + Shift + j	Toggle vertical maximize
+Super + Control + Shift + k	Toggle vertical maximize
+
+# === TAG NAVIGATION ===
+Super + Tab	View previous tag selection
+Control + Shift + Left	View tag to the left
+Control + Shift + Right	View tag to the right
+Alt + Control + Left	Move focused window to tag on the left
+Alt + Control + Right	Move focused window to tag on the right
+Super + 0	View all tags
+Super + Shift + 0	Tag focused window with all tags
+
+# === TAG VIEW ===
+Super + 1	View tag 1
+Super + 2	View tag 2
+Super + 3	View tag 3
+Super + 4	View tag 4
+Super + 5	View tag 5
+Super + 6	View tag 6
+Super + 7	View tag 7
+Super + 8	View tag 8
+Super + 9	View tag 9
+Super + 0	View tag 10
+Super + -	View tag 11
+Super + =	View tag 12
+
+# === TAG TOGGLE VIEW ===
+Super + Control + 1	Toggle tag 1 in view
+Super + Control + 2	Toggle tag 2 in view
+Super + Control + 3	Toggle tag 3 in view
+Super + Control + 4	Toggle tag 4 in view
+Super + Control + 5	Toggle tag 5 in view
+Super + Control + 6	Toggle tag 6 in view
+Super + Control + 7	Toggle tag 7 in view
+Super + Control + 8	Toggle tag 8 in view
+Super + Control + 9	Toggle tag 9 in view
+Super + Control + 0	Toggle tag 10 in view
+Super + Control + -	Toggle tag 11 in view
+Super + Control + =	Toggle tag 12 in view
+
+# === TAG MOVE WINDOW ===
+Super + Shift + 1	Move focused window to tag 1
+Super + Shift + 2	Move focused window to tag 2
+Super + Shift + 3	Move focused window to tag 3
+Super + Shift + 4	Move focused window to tag 4
+Super + Shift + 5	Move focused window to tag 5
+Super + Shift + 6	Move focused window to tag 6
+Super + Shift + 7	Move focused window to tag 7
+Super + Shift + 8	Move focused window to tag 8
+Super + Shift + 9	Move focused window to tag 9
+Super + Shift + 0	Move focused window to tag 10
+Super + Shift + -	Move focused window to tag 11
+Super + Shift + =	Move focused window to tag 12
+
+# === TAG ADD WINDOW ===
+Super + Control + Shift + 1	Add focused window to tag 1
+Super + Control + Shift + 2	Add focused window to tag 2
+Super + Control + Shift + 3	Add focused window to tag 3
+Super + Control + Shift + 4	Add focused window to tag 4
+Super + Control + Shift + 5	Add focused window to tag 5
+Super + Control + Shift + 6	Add focused window to tag 6
+Super + Control + Shift + 7	Add focused window to tag 7
+Super + Control + Shift + 8	Add focused window to tag 8
+Super + Control + Shift + 9	Add focused window to tag 9
+Super + Control + Shift + 0	Add focused window to tag 10
+Super + Control + Shift + -	Add focused window to tag 11
+Super + Control + Shift + =	Add focused window to tag 12
+
+# === MONITORS ===
+Super + ,	Focus previous monitor
+Super + .	Focus next monitor
+Super + Alt + Shift + ,	Send focused window to previous monitor
+Super + Alt + Shift + .	Send focused window to next monitor
+
+# === LAYOUTS ===
+Control + Shift + 1	Set dwindle layout
+Control + Shift + 2	Set tile layout
+Control + Shift + 3	Set column layout
+Control + Shift + 4	Set centered master layout
+Control + Shift + 5	Set floating layout
+Control + Shift + 6	Set bstack layout
+Control + Shift + 7	Set nrowgrid layout
+Control + Shift + 8	Set deck layout
+Control + Shift + 9	Set gapless grid layout
+Control + Shift + 0	Set spiral layout
+Control + Shift + -	Set monocle layout
+Control + Shift + =	Set grid layout
+
+# === GAPS ===
+Super + Alt + u	Increase all gaps
+Super + Alt + Shift + u	Decrease all gaps
+Super + Alt + i	Increase inner gaps
+Super + Alt + Shift + i	Decrease inner gaps
+Super + Alt + o	Increase outer gaps
+Super + Alt + Shift + o	Decrease outer gaps
+Super + Alt + 6	Increase horizontal inner gaps
+Super + Alt + Shift + 6	Decrease horizontal inner gaps
+Super + Alt + 7	Increase vertical inner gaps
+Super + Alt + Shift + 7	Decrease vertical inner gaps
+Super + Alt + 8	Increase horizontal outer gaps
+Super + Alt + Shift + 8	Decrease horizontal outer gaps
+Super + Alt + 9	Increase vertical outer gaps
+Super + Alt + Shift + 9	Decrease vertical outer gaps
+Super + Alt + 0	Toggle gaps
+Super + Alt + Shift + 0	Reset gaps to defaults
+
+# === WM CONTROL ===
+Super + Control + b	Toggle bar
+Super + Shift + r	Restart dwm
+Super + Shift + q	Quit dwm

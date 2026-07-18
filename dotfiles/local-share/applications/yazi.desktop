@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Yazi in Kitty
+Comment=Launch Yazi file manager
+Exec=kitty --class yazi -e /usr/bin/yazi
+Icon=yazi # Or specify the full path to an icon file, e.g., /path/to/yazi-icon.png
+Terminal=false 
+Categories=System;Utility;FileManager;
+MimeType=inode/directory;

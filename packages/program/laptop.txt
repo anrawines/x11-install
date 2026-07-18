@@ -1,0 +1,24 @@
+# Laptop-specific packages for Arch Linux
+# These are commonly needed on laptop systems
+
+# Wifi Management
+networkmanager
+network-manager-applet
+
+# Bluetooth  # bluez provides bluetoothctl
+bluez                     
+bluez-utils
+blueman
+
+# Brightness Control
+brightnessctl
+
+# Battery Management
+power-profiles-daemon
+
+# Optional: TLP (advanced power management)
+# tlp
+# tlp-ui
+
+# Optional: laptop-detect (auto-detect hardware)
+# laptop-detect

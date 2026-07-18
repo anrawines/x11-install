@@ -1,0 +1,10 @@
+tint2 -c ~/.config/openbox/tint2/tint2rc &
+feh --no-fehbg --bg-fill $HOME/Pictures/wallpapers/* &
+
+killall -q dunst
+while pgrep -u $USER -x dunst >/dev/null; do sleep 0.5; done
+dunst -config "$HOME/.config/i3/dunst/dunstrc" &
+
+volumeicon &
+
+notify-send "Clipboard Manager" "Services restarted successfully" -i preferences-desktop-remote-desktop -t 1000

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+    <icon>utilities-terminal</icon>
+    <name>Open Terminal Here</name>
+    <submenu></submenu>
+    <unique-id>1774855786963789-1</unique-id>
+    <command>kitty -e %f</command>
+    <description>Example for a custom action</description>
+    <range></range>
+    <patterns>*</patterns>
+    <startup-notify/>
+    <directories/>
+</action>
+<action>
+    <icon>nvim</icon>
+    <name>Edit as root (nvim)</name>
+    <submenu></submenu>
+    <unique-id>1775891399220739-2</unique-id>
+    <command>sh -c &quot;kitty sudo -E nvim %f&quot;</command>
+    <description>Open file in nvim with root privileges</description>
+    <range>*</range>
+    <patterns>*</patterns>
+    <other-files/>
+    <text-files/>
+</action>
+<action>
+    <icon>cm_extractfiles</icon>
+    <name>extract</name>
+    <submenu></submenu>
+    <unique-id>1775891399220739-1</unique-id>
+    <command>tar -xf %f</command>
+    <description></description>
+    <range>*</range>
+    <patterns>*.tar;*.tar.gz;*.tgz;*.tar.bz2</patterns>
+    <startup-notify/>
+    <directories/>
+    <other-files/>
+</action>
+</actions>

@@ -1,4 +1,4 @@
-# Contributing to bspwm Installer
+# Contributing to X11 Installer
 
 Thank you for your interest in improving this installer!
 
@@ -6,18 +6,89 @@ Thank you for your interest in improving this installer!
 
 ### Adding New Packages
 
-Edit the package list files:
+Package definitions are located in `packages/wm/` and `packages/program/` directories.
 
-- **base.txt** - Essential packages everyone needs
-- **additional.txt** - Optional packages users might want
-- **aur.txt** - AUR-only packages
+#### Simple Package Lists (.txt format)
+
+For straightforward package installations without post-install steps, use `.txt` files:
 
 Format: One package per line, with optional comments starting with `#`
 
-Example:
+Example: `packages/wm/i3.txt`
 ```
-# My favorite package
-my-package-name
+# Window manager
+i3-wm
+i3-gaps
+
+# Status bar
+i3status
+
+# Utilities
+dmenu
+```
+
+#### Complex Package Installers (.sh format)
+
+For window managers or programs that require:
+- Post-install configuration/compilation
+- Build-time steps (suckless tools)
+- Conditional installations
+- Service enablement
+
+Use `.sh` files. The installer system will automatically detect and execute them.
+
+Example structure for `packages/wm/xmonad.sh`:
+
+```bash
+#!/bin/bash
+
+packages::install() {
+    # Define package groups
+    local base_packages=("xmonad" "xmonad-contrib")
+    local utils=("rofi" "picom")
+    
+    # Install packages
+    log_info "Installing Xmonad packages..."
+    if ! helpers::run_with_helper "$PACMAN_HELPER" "${base_packages[@]}"; then
+        log_error "Failed to install"
+        return 1
+    fi
+    
+    # Post-install steps
+    log_info "Compiling Xmonad configuration..."
+    xmonad --recompile
+    
+    log_success "Xmonad installation complete"
+    return 0
+}
+```
+
+**Key requirements for .sh installers:**
+- Must define a `packages::install()` function
+- Function must return 0 on success, non-zero on failure
+- Use logging functions: `log_info()`, `log_success()`, `log_warn()`, `log_error()`
+- Use `helpers::run_with_helper "$PACMAN_HELPER"` for package installation
+- Can use all variables from main install context (e.g., `$SCRIPT_DIR`, `$PACMAN_HELPER`)
+
+**Example: Suckless tool (dwm.sh)**
+```bash
+packages::install() {
+    # Install build deps
+    helpers::run_with_helper "$PACMAN_HELPER" "base-devel" "git" "libx11"
+    
+    # Clone and compile from source
+    local src_dir="${HOME}/.local/src"
+    mkdir -p "$src_dir"
+    cd "$src_dir"
+    
+    git clone https://git.suckless.org/dwm
+    cd dwm
+    make
+    sudo make install
+    
+    log_success "DWM built and installed"
+    return 0
+}
 ```
 
 ### Creating New Modules
@@ -72,6 +143,7 @@ Before submitting changes:
 3. Verify all configuration files are created
 4. Check that backups are created correctly
 5. Test with different login managers (if modified)
+6. For package .sh files: verify both installation and post-install steps work
 
 ## Submitting Changes
 
@@ -89,6 +161,7 @@ Before submitting changes:
 - Add inline comments for complex logic
 - Document any new configuration options
 - Include usage examples
+- For new .sh installers: document what post-install steps are performed
 
 ## Issues and Suggestions
 

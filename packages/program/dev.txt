@@ -1,0 +1,6 @@
+# Development tools and dependencies
+#rustup
+#nodejs
+#npm
+#python
+

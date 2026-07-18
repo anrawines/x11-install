@@ -1,0 +1,34 @@
+# Packages for Qtile
+qtile
+
+# Additional
+picom
+rofi
+dunst
+
+# Display and graphics (base)
+xorg-server
+xorg-xinit
+xorg-xrandr
+xorg-xsetroot
+xorg-xprop
+xorg-xhost
+xorg-xbacklight
+
+# Sound
+pulseaudio
+pavucontrol
+pamixer
+
+# Utilities
+wget
+curl
+unzip
+zip
+
+# Fonts
+ttf-dejavu
+ttf-liberation
+noto-fonts
+ttf-nerd-fonts-symbols
+

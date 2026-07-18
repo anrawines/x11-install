@@ -1,0 +1,113 @@
+* {
+    bg: #2e3440;
+    background-color: @bg;
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+configuration {
+    show-icons: true;
+    icon-theme: "Papirus";
+    location: 0;
+    display-drun: "Launch:";
+}
+
+window {
+    width: 45%;
+    transparency: "real";
+    orientation: vertical;
+    border-color: #ebcb8b;
+    border-radius: 10px;
+}
+
+mainbox {
+    children: [inputbar, listview];
+}
+
+// ELEMENT
+// -----------------------------------
+
+element {
+    padding: 4 8;
+    text-color: #d8dee9;
+    background-color: #2e3440;
+    border-radius: 5px;
+}
+
+element.selected {
+    text-color: #d8dee9;
+    background-color: #ebcb8b;
+}
+
+element-text {
+    background-color: inherit;
+    text-color: inherit;
+}
+
+element-icon {
+    size: 16 px;
+    background-color: inherit;
+    padding: 0 6 0 0;
+    alignment: vertical;
+}
+
+element.selected.active {
+    background-color: #2e3440;
+    text-color: #d8dee9;
+}
+
+element.alternate.normal {
+    background-color: #2e3440;
+    text-color: #d8dee9;
+}
+
+element.alternate.active {
+    background-color: #ebcb8b;
+    text-color: #d8dee9;
+}
+
+element.selected.normal {
+    background-color: #ebcb8b;
+    text-color: #2e3440;
+}
+
+element.normal.active {
+    background-color: #2e3440;
+    text-color: #d8dee9;
+}
+
+element.normal.normal {
+    background-color: #2e3440;
+    text-color: #d8dee9;
+}
+
+element.normal.urgent {
+    background-color: #ff0000;
+    text-color: #2e3440;
+}
+
+listview {
+    columns: 1;
+    lines: 24;
+    padding: 8 0;
+    fixed-height: true;
+    fixed-columns: true;
+    fixed-lines: true;
+    border: 0 10 6 10;
+}
+
+inputbar {
+    padding: 10 0 0;
+    margin: 0 0 0 0;
+}
+
+entry {
+    text-color: #b48ead;
+    padding: 10 10 0 0;
+    margin: 0 -2 0 0;
+}
+
+prompt {
+    text-color: #81a1c1;
+    padding: 10 6 0 10;
+    margin: 0 -2 0 0;
+}

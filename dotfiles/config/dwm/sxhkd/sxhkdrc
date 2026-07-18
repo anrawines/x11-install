@@ -1,0 +1,105 @@
+# === LAUNCH ===
+
+# !Launch Rofi Application Menu (primary launcher)
+super + space
+    rofi -show drun -modi drun -line-padding 4 -hide-scrollbar -show-icons -theme ~/.config/dwm/rofi/config.rasi
+
+# Launch Browser (Firefox-esr)
+super + b
+    firefox
+
+# Launch Private Browser (Firefox Incognito Mode)
+super + shift + b
+    firefox -private-window
+
+# Helium browser
+super + control + b
+    helium
+
+# Show Keybinding Help Script
+super + slash
+    ~/.config/dwm/scripts/help
+
+# Launch File Manager (Thunar)
+super + e
+    thunar
+
+# Launch Geany (Text Editor)
+super + g
+    geany
+
+# === WINDOW ===
+
+# DWM Layout Menu
+super + shift + l
+    ~/.config/dwm/scripts/dwm-layout-menu.sh
+
+# Attach focused window to tab group
+super + ctrl + t
+    ~/.config/dwm/scripts/dwm-tabs attach
+
+# Detach focused window from tab group
+super + alt + t
+    ~/.config/dwm/scripts/dwm-tabs detach
+
+# === MEDIA & BRIGHTNESS ===
+
+# Increase Volume (Custom Script)
+super + F12
+    ~/.config/dwm/scripts/changevolume up
+
+# Decrease Volume (Custom Script)
+super + F11
+    ~/.config/dwm/scripts/changevolume down
+
+# Toggle Mute (Custom Script)
+super + F10
+    ~/.config/dwm/scripts/changevolume mute
+
+# Dedicated Key for Volume Up
+XF86AudioRaiseVolume
+    ~/.config/dwm/scripts/changevolume up
+
+# Dedicated Key for Volume Down
+XF86AudioLowerVolume
+    ~/.config/dwm/scripts/changevolume down
+
+# Dedicated Key for Mute
+XF86AudioMute
+    ~/.config/dwm/scripts/changevolume mute
+
+# Increase Screen Brightness
+XF86MonBrightnessUp
+    xbacklight +10
+
+# Decrease Screen Brightness
+XF86MonBrightnessDown
+    xbacklight -10
+
+# === SCREENSHOTS ===
+
+# Take a Screenshot (Region Select)
+super + Print
+    flameshot gui --path ~/Pictures/Screenshots/
+
+# Take a Fullscreen Screenshot
+Print
+    flameshot full --path ~/Pictures/Screenshots/
+
+# Take a Screenshot (Region Select)
+super + shift + s
+    flameshot gui --path ~/Pictures/Screenshots/
+
+# Take a Fullscreen Screenshot
+super + s
+    flameshot full --path ~/Pictures/Screenshots/
+
+# === SYSTEM ===
+
+# Reload sxhkd (Hotkey Daemon)
+super + Escape
+    pkill -USR1 -x sxhkd; notify-send 'sxhkd' 'Reloaded config'
+
+# Power Off/Reboot
+super + x
+    ~/.config/dwm/scripts/power
